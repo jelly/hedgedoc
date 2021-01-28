@@ -36,6 +36,14 @@ export class AuthService {
 
   async validateToken(token: string): Promise<User> {
     const [keyId, secret] = token.split('.');
+    if (secret.length > 72) {
+      // Only the first 72 characters of the tokens are considered by bcrypt
+      // This should prevent strange corner cases
+      // At the very least it won't hurt us
+      throw new TokenNotValidError(
+        `AuthToken '${secret}' is too long the be a proper token`,
+      );
+    }
     const accessToken = await this.getAuthTokenAndValidate(keyId, secret);
     await this.setLastUsedToken(keyId);
     const user = await this.usersService.getUserByUsername(
@@ -88,7 +96,7 @@ export class AuthService {
         `User '${user.userName}' has already 200 tokens and can't have anymore`,
       );
     }
-    const secret = this.BufferToBase64Url(await this.randomString(64));
+    const secret = this.BufferToBase64Url(await this.randomString(54));
     const keyId = this.BufferToBase64Url(await this.randomString(8));
     const accessToken = await this.hashPassword(secret);
     let token;
