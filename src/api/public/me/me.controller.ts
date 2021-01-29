@@ -49,7 +49,7 @@ export class MeController {
 
   @UseGuards(TokenAuthGuard)
   @Get('history')
-  getUserHistory(@Request() req): HistoryEntryDto[] {
+  getUserHistory(@Request() req): Promise<HistoryEntryDto[]> {
     return this.historyService.getUserHistory(req.user.userName);
   }
 

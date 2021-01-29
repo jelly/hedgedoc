@@ -27,6 +27,7 @@ describe('AuthService', () => {
       id: '1',
       identities: [],
       ownedNotes: [],
+      historyEntries: [],
       updatedAt: new Date(),
       userName: 'Testy',
     };

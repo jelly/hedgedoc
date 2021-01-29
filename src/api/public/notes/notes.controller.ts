@@ -25,6 +25,7 @@ import { RevisionsService } from '../../../revisions/revisions.service';
 import { MarkdownBody } from '../../utils/markdownbody-decorator';
 import { TokenAuthGuard } from '../../../auth/token-auth.guard';
 import { ApiSecurity } from '@nestjs/swagger';
+import { HistoryService } from '../../../history/history.service';
 
 @ApiSecurity('token')
 @Controller('notes')
@@ -33,6 +34,7 @@ export class NotesController {
     private readonly logger: ConsoleLoggerService,
     private noteService: NotesService,
     private revisionsService: RevisionsService,
+    private historyService: HistoryService,
   ) {
     this.logger.setContext(NotesController.name);
   }
@@ -50,7 +52,12 @@ export class NotesController {
   async getNote(@Request() req, @Param('noteIdOrAlias') noteIdOrAlias: string) {
     // ToDo: check if user is allowed to view this note
     try {
-      return await this.noteService.getNoteDtoByIdOrAlias(noteIdOrAlias);
+      const note = await this.noteService.getNoteDtoByIdOrAlias(noteIdOrAlias);
+      await this.historyService.createNotExistingHistoryEntry(
+        noteIdOrAlias,
+        req.user.userName,
+      );
+      return note;
     } catch (e) {
       if (e instanceof NotInDBError) {
         throw new NotFoundException(e.message);

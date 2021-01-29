@@ -21,6 +21,7 @@ import {
 import { NoteDto } from './note.dto';
 import { Note } from './note.entity';
 import { Tag } from './tag.entity';
+import { HistoryEntry } from '../history/history-entry.enity';
 
 @Injectable()
 export class NotesService {
@@ -91,6 +92,7 @@ export class NotesService {
       newNote.alias = alias;
     }
     if (owner) {
+      newNote.historyEntries = [HistoryEntry.create(owner)];
       newNote.owner = owner;
     }
     return this.noteRepository.save(newNote);
